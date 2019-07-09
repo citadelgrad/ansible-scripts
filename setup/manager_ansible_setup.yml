@@ -1,0 +1,34 @@
+---
+- name: Run the Playbook tasks on the Ansible Server
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+  tasks:
+    - name: Create a login user
+      user:
+        name: ansible
+        state: present
+        shell: /bin/bash       # Defaults to /bin/bash
+        system: no             # Defaults to no
+        createhome: yes        # Defaults to yes
+        home: /home/ansible  # Defaults to /home/<username>
+    - name: Give ansible user sudo permissions
+      lineinfile:
+        path: /etc/sudoers
+        regexp: "^ansible ALL="
+        state: present
+        line: "ansible ALL=(ALL)       NOPASSWD: ALL"
+        validate: '/usr/sbin/visudo -cf %s'
+    - name: Create ssh directory
+      become: true
+      become_user: ansible
+      file:
+        path: "/home/ansible/.ssh"
+        state: directory
+    - name: Create ssh key
+      become: true
+      become_user: ansible
+      # Most secure SSH key type // Ed25519 was introduced on OpenSSH version 6.5 
+      command: ssh-keygen -o -a 100 -t ed25519 -f "/home/ansible/.ssh/id_ed25519" -P ''
+      args: 
+        creates: "/home/ansible/.ssh/id_ed25519"

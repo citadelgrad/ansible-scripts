@@ -1,0 +1,23 @@
+---
+- name: run the playbook tasks on the localhost
+  hosts: 127.0.0.1
+  connection: local
+  become: true
+  tasks:
+    - name: Create a ansible user
+      user:
+        name: ansible
+        password: '{{ ansible_password }}'
+        state: present
+        shell: /bin/bash       # Defaults to /bin/bash
+        system: no             # Defaults to no
+        createhome: yes        # Defaults to yes
+        home: /home/ansible  # Defaults to /home/<username>
+    - name: Give ansible user sudo permissions
+      lineinfile:
+        path: /etc/sudoers
+        regexp: "^ansible ALL="
+        state: present
+        line: "ansible ALL=(ALL)       NOPASSWD: ALL"
+        validate: '/usr/sbin/visudo -cf %s'
+        
