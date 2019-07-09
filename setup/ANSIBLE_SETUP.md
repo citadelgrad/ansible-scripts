@@ -1,4 +1,4 @@
-# Avatier Ansible Setup
+# Ansible Setup
 
 ## Client & Manager Setup Script
 
